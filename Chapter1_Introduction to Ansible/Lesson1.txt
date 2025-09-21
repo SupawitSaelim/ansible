@@ -1,0 +1,151 @@
+Hosts
+- The control host is where the Ansible CLI is executed, and this can
+be your local machine
+- managed hosts, also referred to as nodes, are the target devices
+(servers, network appliances, or any computer) you want to configure with Ansible.
+- inventory file defines all the managed hosts and groups of managed hosts
+to run automation tasks
+- The default location for Ansible inventory is /etc/ansible/hosts. If you set hosts there, you are setting the inventory globally, and it’s unnecessary to specify the inventory file location using the -i option.
+- The inventory files are written in either INI (Initialization file) or YAML format
+
+Groups
+- new INI section with the group’s name in the file. An INI section is defined on a line in square brackets ([ and ])
+[webservers]
+192.168.1.92
+   web1.example.com
+
+[dbservers]
+192.168.1.93
+
+- yaml
+webservers:
+  hosts:
+    192.168.1.92: null
+    web1.example.com
+dbservers:
+  hosts:
+    192.168.1.93: null
+- A variable name cannot begin with a number. (Python)
+
+Adding variables to inventory
+- To define a variable to multiple hosts, you can place them in a special section that follows the format <group_name>:vars.
+[dbservers]
+db1.example.com
+db2.example.com
+
+[dbservers:vars]
+ansible_user=admin
+ansible_port=2200
+
+Multiple inventory files
+• You can create a directory with multiple inventory files.
+• You can pull inventory dynamically, for example, hosts created in the cloud.
+• You can use a mix of dynamic and static inventory files.
+• You can use the -i argument multiple times to append inventory files.
+
+CLI Tools
+- The -m argument is used to specify an Ansible module (such as the ping module)
+- First of all, create an inventory file called inventory with both host IPs defined: 
+- ansible all -i inventory -m ping #command to run ping module on all hosts in inventory file
+
+Ansible-playbook
+- playbooks tell Ansible what to do on which devices; for example, installing Java 17 hosts where the backend is deployed.
+- arguments should known to run 
+   : -K to ask for privilege escalation password
+     - --check to run playbook in check mode
+     - --diff to show the differences in files changed by the playbook
+     - -C is a shorthand for --check
+     - -v, -vv, or -vvv to increase verbosity
+- ansible-playbook -i inventory playbook.yml -K --check --diff -vv
+
+Other CLI tools
+- ansible-config to view and manage Ansible configuration settings
+- ansible-doc to view documentation of Ansible modules
+- ansible-galaxy to manage Ansible roles
+- ansible-vault to encrypt and decrypt sensitive data
+- ansible-pull to pull playbooks from a version control system and run them locally on
+- an   : -K to ask for privilege escalation password
+     - --check to run playbook in check mode
+     - --diff to show the differences in files changed by the playbook
+     - -C is a shorthand for --check
+     - -v, -vv, or -vvv to increase verbosity
+- ansible-playbook -i inventory playbook.yml -K --check --diff -vv
+
+Other CLI tools
+- ansible-config to view and manage Ansible configuration settings
+- ansible-doc to view documentation of Ansible modules
+- ansible-galaxy to manage Ansible roles
+- ansible-vault to encrypt and decrypt sensitive data
+- ansible-pull to pull playbooks from a version control system and run them locally on
+- ansible-inventory to display or dump the configured inventory
+
+Host Patterns
+- as an Ansible pattern can refer to a single host, an IP address, an inventory group, or a set of groups defined within inventory files.
+- assume that inventory_2 :
+[webservers]
+web1.example.com
+web2.example.com
+
+[dbservers]
+db1.example.com
+db2.example.com
+db3.example.com
+
+[staging]
+web1.example.com
+db1.example.com
+
+- Target multiple hosts, separating them using a comma (,) or a colon (:)
+- for example, web1.example.com,db1.example.com.
+- the excluding operator (!) and the inclusion operator (&)
+- for example, to target all webservers except web2.example.com, you can use the pattern webservers:!web2.example.com.
+- for example, to target all webservers and dbservers, you can use the pattern webservers:&dbservers.
+- You can use wildcard patterns to specify a group of hosts directly. For example, *.example.com will match every host of the example.com domain.
+- refer to hosts using an array-like expression. For example, 
+    dbservers[0] # db1.example.com
+    dbservers[-1] # db3.example.com
+    dbservers[0:2] # == db1.example.com, db2.example.com
+
+Configuring Ansible
+- The default configuration file is /etc/ansible/ansible.cfg, but you can create a custom configuration file in the current working directory or your home directory (~/.ansible.cfg).
+- The default configuration parameters should be sufficient for most users.
+- defined in INI format, using a hash sign (#) for line comments, and a semicolon (;).
+- To generate a complete configuration file example, run the following command in a terminal
+        ansible-config init --disabled > ansible.cfg
+    Why run this command?
+- To provide a full template that contains all available configuration options with explanations.
+- It helps you see the complete list of options instead of relying only on hidden defaults.
+- You can customize parameters such as inventory path, remote user, log file location, or SSH port easily.
+- It ensures consistency across environments (team members or different servers use the same settings).
+- Without this file, Ansible will just use built-in defaults, which might change between versions or machines.
+
+
+Ad Hoc Commands
+- Ad hoc commands are one-line commands that you can run from the command line to perform simple tasks.
+- The syntax of an ad hoc command is as follows:
+ansible \
+<pattern> \
+<ansible arguments> \
+-m <module> \
+-a "<module arguments>"
+- Let’s see some examples where the ad hoc command is useful.
+- Rebooting Servers
+  ansible all -i inventory.ini -a "/sbin/reboot" -u root --ask-become-pass
+  or
+  ansible all -i inventory.ini -m reboot -u root --ask-become-pass
+- --ask-become-pass or -K to prompt for the privilege escalation password
+
+
+Managing Users
+- The user command allows for the creation, management, and removal of user accounts on managed nodes.
+- Let’s see how to add a new user to all machines using an ad hoc command:
+ansible all -i inventory.ini -u root --become --ask-become-pass -m user -a "name=ansible_user password='Supawitadmin123_'>"
+- it's can u JSON format ansible all -i ungrouped_inventory --user vagrant -m user -a '{"name":"ada", "password":<crypted password here>}'
+- Removing a user account
+ansible all -i inventory.ini -m ansible.builtin.user -a "name=ansible_user state=absent" -u root
+
+
+Gathering Facts
+- Facts are remote host information, such as the hostname, IPs, disk, disk space, date time, bios, and so on. 
+- You can gather facts using the setup module.
+ansible all -i inventory.ini -m ansible.builtin.setup -u root
