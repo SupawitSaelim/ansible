@@ -1,0 +1,70 @@
+### Problem
+
+* You could log in manually with `ssh supawit@10.0.53.24` using a password.
+* But when using **Ansible `ping` module**, it failed with:
+
+  ```
+  Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)
+  ```
+* This happened on all target hosts.
+
+---
+
+### Solution
+
+1. **Use password authentication with `--ask-pass`:**
+
+   ```bash
+   ansible all -i inventory.ini -m ping -u supawit --ask-pass
+   ```
+
+2. **Set up SSH key authentication (recommended):**
+
+   * Generate an SSH key pair on the Ansible control node:
+
+     ```bash
+     ssh-keygen -t rsa -b 4096 -C "supawit"
+     ```
+
+     (Press **Enter** for default file location, and optionally set a passphrase.)
+
+   * Copy the public key to each managed host:
+
+     ```bash
+     ssh-copy-id supawit@10.0.53.24
+     ssh-copy-id supawit@10.0.53.26
+     ssh-copy-id supawit@10.0.53.28
+     ```
+
+   * Test manual login (should not ask for password anymore):
+
+     ```bash
+     ssh supawit@10.0.53.24
+     ```
+
+   * Run Ansible without `--ask-pass`:
+
+     ```bash
+     ansible all -i inventory.ini -m ping -u supawit
+     ```
+
+3. **Store password in `inventory.ini` (less secure):**
+
+   ```ini
+   [all]
+   10.0.53.24 ansible_user=supawit ansible_password=your_password
+   10.0.53.26 ansible_user=supawit ansible_password=your_password
+   10.0.53.28 ansible_user=supawit ansible_password=your_password
+   ```
+
+---
+
+### Why it happened
+
+By default, **Ansible uses SSH keys for authentication**.
+
+* Since no valid SSH key was installed, authentication failed.
+* Manual `ssh` worked because you typed the password, but Ansible didn’t ask for it unless you used `--ask-pass` or stored it in inventory.
+* Setting up SSH keys makes the process seamless and more secure.
+
+---
