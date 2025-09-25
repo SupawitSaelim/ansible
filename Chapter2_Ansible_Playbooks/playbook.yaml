@@ -1,0 +1,25 @@
+---
+- name: Web Servers
+  hosts: webservers
+  become: true
+  strategy: free
+  tasks:
+    - name: Ensure apache is at the latest version
+      ansible.builtin.yum:
+        name: httpd
+        state: latest
+
+- name: DB Servers
+  hosts: databases
+  become: true
+  strategy: free
+  tasks:
+    - name: Ensure postgresql is at the latest version
+      ansible.builtin.yum:
+        name: postgresql
+        state: latest
+
+    - name: Ensure that postgresql is started
+      ansible.builtin.service:
+        name: postgresql
+        state: started

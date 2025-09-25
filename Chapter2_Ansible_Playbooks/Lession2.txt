@@ -1,0 +1,100 @@
+What Is an Ansible Playbook? - 1(RED HAT)
+ - An Ansible Playbook is a list of tasks that are automatically executed for a specified set of nodes
+ - One or more Ansible tasks can be combined to make a play.
+ - 'play' consists of an ordered set of tasks to execute against host selections from the Ansible inventory file.
+
+An Example Playbook
+ - idempotent, which means they check whether the desired final state has already been achieved.
+ - If it’s achieved, the task is not executed, avoiding repeating the task execution.
+
+Simple playbook named playbook.yaml(Chapter2) containing two plays
+ - First play installs (or updates) to the latest Apache Server
+ - Second play installs (or updates) to the latest PostgreSQL server and ensures it’s started using the init system (systemd, upstart, OpenRC, etc.) installed in the Linux distribution.
+ - For Windows, use the ansible.windows.win_service module instead.
+
+Executing a playbook
+ - ansible-playbook -i inventory playbook.yaml
+ - if 'sudo missing' error occurs, use --ask-become-pass option
+ - ansible-playbook -i inventory playbook.yaml --ask-become-pass
+
+Execution strategies
+    - linear (default): tasks are executed on all hosts in the batch before moving to the next task.
+    - free: tasks are executed as soon as a host is ready, allowing for more parallel
+    - debug: like the linear strategy but controlled by an interactive debug session.
+    - specified at the play level or globally.
+     - To set the strategy globally, use the ansible.cfg file:
+        [defaults]
+        strategy = free
+     - To set the strategy at the play level, use the strategy keyword in the playbook
+        - hosts: webservers
+          strategy: free
+
+Forks
+ - The number of parallel processes that Ansible will use to execute tasks on multiple hosts.
+ - Default is 5, meaning Ansible will run tasks on up to 5 hosts simultaneously.
+ - a good fork value is 25
+ - set forks can be set in the ansible.cfg file:
+    [defaults]
+    forks = 25
+   - or via the command line using the --forks option:
+
+Setting the Batch Size
+ - The batch size determines how many hosts are processed in parallel during each batch of task execution.
+ - different from forks, wich number of connections Ansible can open simultaneously.
+ - But, the batch size controls how many hosts are included in each batch of task execution.
+ - By default, Ansible processes all hosts in a single batch.
+ - To set a specific batch size, use the serial keyword in your playbook:
+    - hosts: webservers
+      serial: 10
+      tasks:
+        - name: Install Apache
+
+ - In this example, Ansible will process 10 hosts at a time, completing all tasks for those hosts before moving on to the next batch of 10 hosts.
+ - Can set a percentage of hosts to be processed in each batch:
+    - hosts: webservers
+      serial: 20%
+
+Ordering Execution Based on Inventory
+ -  there is no guarantee the execution order of tasks across multiple hosts.
+ -  To enforce a specific order of execution based on the inventory file, you can use the
+   - inventory : this is the default behavior, where Ansible processes hosts in the order they are listed in the inventory file.
+   - reverse_inventory : this option processes hosts in the reverse order of their listing in the inventory file.
+   - sorted : this option sorts hosts alphabetically before processing them.
+   - reverse_sorted : this option sorts hosts in reverse alphabetical order before processing them.
+   - shuffled : this option randomizes the order of hosts before processing them.
+     - hosts: webservers
+       order: sorted
+       tasks:
+
+Running on a single machine
+ - run_once is a property that can be applied to a task within a playbook to ensure that the task is executed only once, regardless of how many hosts are targeted by the play.
+   - hosts: webservers
+     tasks:
+       - name: Run a task only once
+         command: /path/to/some/command
+         run_once: true
+ - to run a task on a specific host, use the delegate_to keyword:
+   - hosts: webservers
+     tasks:
+       - name: Run a task on a specific host
+         command: /path/to/some/command
+         delegate_to: db1.example.com
+   
+key notes:
+ - assuming serial is set to 5, and the inventory file contains 10 hosts
+ - then where will be 2 batches of execurtion
+
+
+Restricting execution
+ - The throttle keyword can be used to limit the number of hosts that can execute a particular task simultaneously.
+ - tasks:
+     - ansible.builtin.command: /path/to/some/command
+       throttle: 3
+ - similar to serial but applied at the task level rather than the play level.
+
+summary 
+ - forks = limit global connections of controller
+ - serial = limit hosts that will run play at a time
+ - throttle = limit hosts that will run a specific task at a time
+ - run_once = run a specific task only once in a play regardless of number of hosts
+
