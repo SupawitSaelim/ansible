@@ -1,0 +1,21 @@
+- name: Simple variables example
+  hosts: all
+  gather_facts: false
+
+  vars:
+    my_name: "Supawit"
+    my_port: 8080
+    my_enabled: true
+
+  tasks:
+    - name: Print my_name variable
+      ansible.builtin.debug:
+        msg: "My name is {{ my_name }}"
+
+    - name: Print my_port variable
+      ansible.builtin.debug:
+        msg: "The application runs on port {{ my_port }}"
+
+    - name: Print my_enabled variable
+      ansible.builtin.debug:
+        msg: "Feature enabled: {{ my_enabled }}"

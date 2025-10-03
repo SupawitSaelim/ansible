@@ -1,0 +1,64 @@
+Ansible Facts
+ - Facts are pieces of information about the systems that Ansible manages. 
+ - They are automatically collected by Ansible when it connects to a host, and they provide details such as IP addresses, 
+ - operating system versions, hardware information, and more.
+ - ansible all -i inventory -m ansible.builtin.setup # To gather and display facts about all hosts in the inventory.
+
+Fact Variables
+ - Facts are stored within a variable named ansible_facts.
+ - with the property’s name as the key, or by using dot notation (.)
+ - To reference a specific fact, you can use the syntax ansible_facts['property_name'] or ansible_facts.property_name.
+
+Disabling Gathering Facts
+ - By default, gather_facts: true → Ansible collects system facts automatically.
+ - To disable, set gather_facts: false at the start of the playbook.
+ - Disabling speeds up execution, especially with many hosts.
+ - If facts are needed later, use the setup module in a task.
+(files in Ansible Facts folder)
+
+Ansible Variables
+Simple variables
+ - Used to store values that can be reused throughout the playbook.
+ - Ansible accepts a broad range of values for boolean variables:
+    true/false, 1/0, yes/no, True/False, t/f, y/n, or on/off.
+
+List variables
+ - A list variable combines a variable name with multiple values. 
+ - The values are defined either as an itemized list or in square bracket [] form.
+
+Dictionary variables
+ - A dictionary stores data in key-value pairs, like the structure of a Map included in many programming languages.
+ - You can access values using dict.key (dot notation) or dict['key'] (bracket notation).
+ - We recommend using bracket notation because some keys might collide with Python dictionary methods, or keys could include a period (.), which can cause errors.
+
+Setting Variable Values
+    Playbooks
+    Files
+    host_vars and group_vars
+    Inventory
+    Runtime (extra vars)
+        - For sensitive values, you can hash the entered value so you can use it,
+
+Variable precedence
+ - Ansible applies variable precedence, so one value might be overridden because of the location where it is defined.
+ - The order of precedence, from lowest to highest, is:
+    1. Role defaults
+    2. Inventory file or script group vars
+    3. Inventory group_vars/all
+    4. Playbook group_vars/all
+    5. Inventory group_vars/*
+    6. Playbook group_vars/*
+    7. Inventory file or script host vars
+    8. Inventory host_vars/*
+    9. Playbook host_vars/*
+    .......
+
+Protecting Sensitive Data
+ - Ansible provides several methods to protect sensitive data, such as passwords or API keys, from being exposed in playbooks or logs.
+ Encrypting Data
+  - Ansible Vault allows you to encrypt sensitive data within your playbooks or variable files.
+  - You can create an encrypted file using the ansible-vault create command, and then
+ Dycrypt it when needed using ansible-vault decrypt.
+  - You can also edit encrypted files directly with ansible-vault edit.
+  - To run a playbook that includes encrypted data, use the --ask-vault-pass option to prompt for the vault password.
+  - Example: ansible-playbook playbook.yml --ask-vault-pass

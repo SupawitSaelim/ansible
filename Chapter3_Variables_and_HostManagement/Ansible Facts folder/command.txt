@@ -1,0 +1,4 @@
+ansible-playbook -i inventory -K playbook-facts.yaml
+
+time ansible-playbook playbook_with_facts.yml
+time ansible-playbook playbook_without_facts.yml

@@ -1,0 +1,26 @@
+- name: Simple list variables with index
+  hosts: all
+  gather_facts: false
+
+  vars:
+    configFiles:
+      - "localhost.conf"
+      - "extra.conf"
+    remote_path: "/etc/nginx/conf.d"
+
+  tasks:
+    - name: Show entire list
+      ansible.builtin.debug:
+        var: configFiles
+
+    - name: Show first item in the list
+      ansible.builtin.debug:
+        msg: "First config file is: {{ configFiles[0] }}"
+
+    - name: Show second item in the list
+      ansible.builtin.debug:
+        msg: "Second config file is: {{ configFiles[1] }}"
+
+    - name: Example of combining with another variable
+      ansible.builtin.debug:
+        msg: "Full path: {{ remote_path }}/{{ configFiles[0] }}"

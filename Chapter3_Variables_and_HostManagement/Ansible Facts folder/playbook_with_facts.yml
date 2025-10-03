@@ -1,0 +1,7 @@
+- name: Playbook with gather_facts enabled
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Just show hello
+      ansible.builtin.debug:
+        msg: "Hello with facts"

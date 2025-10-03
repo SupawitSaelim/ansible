@@ -1,0 +1,7 @@
+[therock] ; #Establishes the group of hosts called therock containing two hosts
+db ansible_host=192.168.0.17 ; #Aliases the hostname to db
+web ansible_host=192.168.0.18 ansible_user=alex ansible_ssh_pass=alex
+
+[barcelona] ; #Another group of hosts
+db2 ansible_host=192.168.0.19 ansible_user=alex ansible_ssh_pass=alex
+web2 ansible_host=192.168.0.20 ansible_user=alex ansible_ssh_pass=alex

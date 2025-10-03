@@ -1,0 +1,13 @@
+- name: Example Playbook - Using ansible_facts
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Show OS family
+      ansible.builtin.debug:
+        msg: "This system belongs to OS family: {{ ansible_facts['os_family'] }}"
+
+    - name: Show SELinux configuration mode
+      ansible.builtin.debug:
+        msg: "SELinux config mode is: {{ ansible_facts['selinux']['config_mode'] | default('not available') }}"
+

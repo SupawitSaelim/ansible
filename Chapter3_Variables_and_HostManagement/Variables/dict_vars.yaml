@@ -1,0 +1,26 @@
+- name: Simple dictionary variables example
+  hosts: all
+  gather_facts: false
+
+  vars:
+    app_info:
+      name: "MyApp"
+      version: "1.0.0"
+      enabled: true
+
+  tasks:
+    - name: Show entire dictionary
+      ansible.builtin.debug:
+        var: app_info
+
+    - name: Access specific key - name
+      ansible.builtin.debug:
+        msg: "Application name: {{ app_info.name }}"
+
+    - name: Access specific key - version
+      ansible.builtin.debug:
+        msg: "Application version: {{ app_info['version'] }}"
+
+    - name: Access specific key - enabled
+      ansible.builtin.debug:
+        msg: "Application enabled: {{ app_info.enabled }}"

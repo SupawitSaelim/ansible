@@ -1,0 +1,1 @@
+Run -> ansible-vault create prod.yaml = to create file with ansible vault end then try to 'cat' that file
