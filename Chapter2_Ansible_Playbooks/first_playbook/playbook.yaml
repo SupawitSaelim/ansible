@@ -1,0 +1,64 @@
+- name: Configure nginx
+  hosts: all
+  become: true
+  # Privilege escalation.
+
+  tasks:
+    # Installs nginx using the dnf tool.
+    - name: Install nginx
+      ansible.builtin.dnf:
+        name: nginx
+        state: present
+
+    # Installs firewalld using the dnf tool.
+    - name: Install firewalld
+      ansible.builtin.dnf:
+        name: firewalld
+        state: present
+
+    # Copies a file from the control machine to the managed node.
+    - name: Copy nginx config file
+      ansible.builtin.copy:
+        src: nginx.conf
+        dest: /etc/nginx/conf.d/localhost.conf
+
+    # Copies a file from the control machine to the managed node.
+    # Creates a tag for executing only an update of the web page content.
+    - name: Copy index.html
+      ansible.builtin.copy:
+        src: index.html
+        dest: /usr/share/nginx/html/index.html
+        mode: '0644'
+      tags: ['deploy']
+
+    - name: Restart nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+      tags: ['deploy']
+
+    # Uses the uri module to perform an invocation to the web server, storing the
+    # output into the response variable.
+    - name: Check status 200 and fail if incorrect page contents
+      ansible.builtin.uri:
+        url: http://localhost/index.html
+        return_content: yes
+      register: response
+      tags: ['deploy']
+
+    - name: Print result
+      ansible.builtin.debug:
+        var: response.content
+      tags: ['deploy', 'test']
+
+    # Configures the firewall to permit traffic for the HTTP port.
+    - name: Permit traffic in default zone for http service
+      ansible.posix.firewalld:
+        service: http
+        permanent: true
+        state: enabled
+
+    - name: Restart firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: restarted

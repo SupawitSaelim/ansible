@@ -1,0 +1,14 @@
+- hosts: webservers
+  become: true
+
+  tasks:
+    - name: Create test file
+      ansible.builtin.copy:
+        content: "Hello from Ansible {{ inventory_hostname }}"
+        dest: /tmp/test_file.txt
+      notify: print_message
+
+  handlers:
+    - name: print_message
+      ansible.builtin.debug:
+        msg: "The file was created and the handler has been triggered on {{ inventory_hostname }}"

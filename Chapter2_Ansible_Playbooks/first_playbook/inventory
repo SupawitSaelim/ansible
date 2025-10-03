@@ -1,0 +1,7 @@
+[node1]
+192.168.1.105
+192.168.1.107
+
+[all:vars]
+ansible_user=supawit
+ansible_ssh_pass=Supawitadmi1n23_
