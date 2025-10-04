@@ -62,3 +62,63 @@ Protecting Sensitive Data
   - You can also edit encrypted files directly with ansible-vault edit.
   - To run a playbook that includes encrypted data, use the --ask-vault-pass option to prompt for the vault password.
   - Example: ansible-playbook playbook.yml --ask-vault-pass
+
+Host Management
+Inventories
+ - Ansible inventory defines hosts and groups of hosts for task execution.
+ - Hosts can be written in ranges, e.g. db[01:05].example.com or alphabetic db[a:f].example.com.
+ - Groups can be nested with :children to allow hierarchical host management.
+
+Grouping and Subgroups
+ - Instead of using regex to select hosts, you can structure inventory with groups like:
+[web_tokyo]
+web1.example.com
+[db_tokyo]
+db1.example.com
+[webservers:children]
+web_tokyo
+[tokyo:children]
+web_tokyo
+db_tokyo
+
+Inventory Directories
+ - Instead of a single inventory file, you can store multiple files in a directory (inventory/) and Ansible merges them.
+ - File load order is ASCII-based, so prefix like 01-, 02- helps control order.
+    - Example structure:
+        inventory/
+        ├── 01-webservers
+        ├── 02-databases
+        └── 03-others
+
+Dynamic Inventories
+ - Static inventories are fine for stable environments.
+ - Dynamic inventories are better for cloud or containerized environments where hosts change frequently.
+ - Ansible provides many inventory plug-ins (ansible-doc -t inventory -l).
+ - Dynamic Inventory with Docker
+    - Install Docker collection
+    ansible-galaxy collection install community.docker
+    - Run container
+    docker run -it --rm --name test redhat/ubi8
+    - Create inventory config (main_docker.yaml)
+    plugin: community.docker.docker_containers
+    docker_host: unix://var/run/docker.sock
+    connection_type: docker-cli
+    - Test inventory
+    ansible-inventory -i main_docker.yaml --graph
+ - Dynamic Inventory with Podman
+    - Install Podman collection
+    ansible-galaxy collection install containers.podman
+    - Run container
+    podman run -it --rm --name test docker.io/library/ubuntu:latest
+    - Create inventory config (main_podman.yaml)
+    plugin: containers.podman.podman_containers
+    podman_host: unix://run/podman/podman.sock
+    connection_type: podman-cli
+    - Test inventory
+    ansible-inventory -i main_podman.yaml --graph
+
+Conclusion
+ - Inventories can be static (INI/YAML) or dynamic (via plug-ins).
+ - Docker: community.docker.docker_containers plug-in.
+ - Podman: containers.podman.podman_containers plug-in.
+ - Both allow automatically discovering running containers as Ansible hosts.
