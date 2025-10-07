@@ -1,0 +1,7 @@
+- name: Show all hosts in therock group
+  hosts: localhost
+  tasks:
+    - name: Print hostnames
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ groups['rhel_utm'] }}"

@@ -1,0 +1,17 @@
+- name: Install nginx based on OS
+  hosts: all
+  become: true
+  tasks:
+    - name: Get OS distribution
+      ansible.builtin.set_fact:
+        distribution: "{{ ansible_facts['distribution'] }}"
+
+    - name: Install nginx on Fedora
+      ansible.builtin.dnf:
+        name: nginx
+      when: distribution == "Fedora"
+
+    - name: Install nginx on Debian
+      ansible.builtin.apt:
+        name: nginx
+      when: distribution == "Debian"

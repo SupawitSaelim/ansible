@@ -1,0 +1,9 @@
+- name: Retry task until condition met
+  hosts: all
+  tasks:
+    - name: Check command result
+      ansible.builtin.command: /bin/echo "succeeded"
+      register: result
+      until: result.stdout.find("succeeded") != -1
+      retries: 5
+      delay: 10

@@ -1,0 +1,10 @@
+- name: Loop Index Example
+  hosts: all
+  tasks:
+    - name: Echo with index
+      ansible.builtin.command: /bin/echo "Hello {{ item }} number {{ idx }}"
+      loop:
+        - Ada
+        - Aixa
+      loop_control:
+        index_var: idx

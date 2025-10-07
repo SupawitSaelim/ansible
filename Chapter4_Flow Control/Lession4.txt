@@ -1,0 +1,44 @@
+Flow Control
+Loops
+ - Loops allow running the same task multiple times with different values.
+ - They make playbooks more compact, flexible, and easier to maintain.
+ - The current iteration value is stored in the item variable.
+ - You can loop over lists, dictionaries (using dict2items), or hashes.
+ - Use loop_control.loop_var to rename item when using nested loops.
+
+Registering Variables
+ - Use the register keyword to capture the output of a task into a variable.
+ - The registered variable contains details like stdout, stderr, rc (return code), etc.
+ - You can access these details using dot notation (e.g., myvar.stdout).
+ - Registered variables can be used in subsequent tasks for conditional execution or reporting.
+
+Pausing
+ - The pause module allows you to pause playbook execution for a specified duration or until user input.
+ - You can specify the duration in seconds using the seconds parameter.
+ - The prompt parameter can be used to display a message to the user during the pause.
+ - This is useful for waiting for external processes or for user confirmation before proceeding.
+
+Indexing
+ - Use loop_control.index_var to store the current loop index in a custom variable.
+ - This variable can be referenced inside tasks to display or use the iteration number.
+
+Special Variables
+ - Ansible provides special variables related to hosts and loops.
+ - ansible_play_hosts, ansible_play_batch, and groups hold host lists that can be used in loops.
+ - Example: loop: "{{ groups['therock'] }}" prints all hosts in a specific group.
+ - The query('inventory_hostnames', pattern) function retrieves hosts dynamically from inventory.
+ - With loop_control: extended: true, Ansible exposes loop metadata variables (e.g., ansible_loop.index, ansible_loop.first, ansible_loop.last) for advanced control.
+
+Retrying Tasks Until a Condition Is Met
+ - Ansible can retry tasks automatically until a specific condition is satisfied.
+ - Use until, retries, and delay to define the condition, number of attempts, and waiting time.
+ - Example: retry a task up to 5 times, waiting 10 seconds each time, until output contains “succeeded.”
+ - If the condition becomes true, Ansible stops retrying early.
+ - Best used with idempotent modules, since repeated execution of non-idempotent ones may cause inconsistent states.
+
+Conditionals
+ - Ansible uses conditionals with the when directive to control task execution.
+ - Tasks can run selectively based on facts, variables, or registered results.
+ - Useful when managing multiple OS types (e.g., Fedora vs Debian) with different package managers.
+ - You can store facts in variables (set_fact) to simplify and reuse conditional logic.
+ - Conditional expressions support all Jinja2 tests and filters.

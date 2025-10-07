@@ -1,0 +1,14 @@
+- name: Simple Pause Example
+  hosts: all
+  tasks:
+    - name: Display start message
+      ansible.builtin.debug:
+        msg: "Starting process..."
+
+    - name: Pause for 5 seconds
+      ansible.builtin.pause:
+        seconds: 5
+
+    - name: Display end message
+      ansible.builtin.debug:
+        msg: "Process resumed after pause."
