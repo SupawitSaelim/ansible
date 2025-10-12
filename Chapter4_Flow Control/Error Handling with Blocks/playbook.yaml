@@ -1,0 +1,33 @@
+- name: Demonstrate Error Handling with Blocks
+  hosts: all
+  become: true
+
+  tasks:
+    - name: "Example: Error Handling Block"
+      block:
+        - name: "Attempt to start nginx"
+          ansible.builtin.service:
+            name: nginx
+            state: started
+
+        - name: "Copy index.html"
+          ansible.builtin.copy:
+            src: index.html
+            dest: /usr/share/nginx/html/index.html
+            mode: '0644'
+
+      rescue:
+        - name: "Handle failure"
+          ansible.builtin.debug:
+            msg: "There was an error starting nginx or copying the file."
+
+        - name: "Try to stop nginx (cleanup)"
+          ansible.builtin.service:
+            name: nginx
+            state: stopped
+          ignore_errors: true
+
+      always:
+        - name: "Always run this task"
+          ansible.builtin.debug:
+            msg: "This runs no matter what, success or failure."

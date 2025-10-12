@@ -42,3 +42,44 @@ Conditionals
  - Useful when managing multiple OS types (e.g., Fedora vs Debian) with different package managers.
  - You can store facts in variables (set_fact) to simplify and reuse conditional logic.
  - Conditional expressions support all Jinja2 tests and filters.
+
+Ninja2
+ - Jinja2 expressions in conditionals are evaluated as Python expressions.
+ - Use logical operators (and, or, not) to combine multiple conditions.
+ - Here are the conditionals for comparing elements: ==, !=, <, >, <=, >=, in, is.
+ - Example: when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] | int >= 8
+
+Handlers
+ - Handlers are special tasks that run only when notified by other tasks.
+ - They are typically used for actions like restarting services after configuration changes.
+ - Handlers are defined in a separate section and can be notified using the notify keyword.
+ - Handlers run at the end of a play, ensuring that all changes are applied before restarting services.
+ - You can notify multiple handlers from a single task, and handlers can also notify other handlers.
+
+Error management
+ - Ignoring Failed Commands
+   - Use ignore_errors: yes to continue playbook execution even if a task fails.
+   - This is useful for non-critical tasks where failure should not halt the entire playbook.
+   - Even though the first command fails, the second command runs too.
+ - Defining Failure
+  - Use failed_when to define custom failure conditions for tasks.
+  - This allows you to specify when a task should be considered failed based on its output or other criteria.
+  - Example: failed_when: "'Error' in myvar.stdout" marks the task as failed if "Error" is found in the output.
+ - Defining Change
+  - Use changed_when to define when a task should be marked as changed.
+  - This is useful for tasks that may not always result in a change, allowing for more accurate reporting.
+  - Example: changed_when: "'Success' in myvar.stdout" marks the task as changed if "Success" is found in the output.
+ - Aborting a Play
+  - any_errors_fatal can be set to true at the play level to abort the entire play if any task fails.
+  - This is useful for critical plays where failure of any task should stop further execution.
+  - Example: any_errors_fatal: true ensures that if any task fails, the play stops immediately.
+
+Blocks
+Grouping Tasks with Blocks
+ - Blocks allow you to group multiple tasks together for better organization and error handling.
+ - You can apply directives like when, become, ignore_errors, etc., to the entire block instead of individual tasks.
+ - Blocks can contain tasks, handlers, and even other blocks.
+Error Handling with Blocks
+ - Use rescue and always sections within a block to handle errors gracefully.
+ - The rescue section runs if any task in the block fails, allowing you to define fallback actions.
+ - The always section runs regardless of success or failure, useful for cleanup tasks.
