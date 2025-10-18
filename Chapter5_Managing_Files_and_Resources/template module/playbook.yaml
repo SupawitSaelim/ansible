@@ -1,0 +1,8 @@
+- hosts: all
+  vars:
+    username: testuser
+  tasks:
+    - name: Deploy template
+      ansible.builtin.template:
+        src: /tmp/conf.properties.j2
+        dest: /tmp/conf.properties

@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Assemble fragments into one file
+      ansible.builtin.assemble:
+        src: /tmp/fragments
+        dest: /tmp/assembled.txt

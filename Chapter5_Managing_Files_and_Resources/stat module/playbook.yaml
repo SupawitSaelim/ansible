@@ -1,0 +1,10 @@
+- hosts: all
+  tasks:
+    - name: Check if /tmp/testfile.txt exists
+      ansible.builtin.stat:
+        path: /tmp/testfile.txt
+      register: file_info
+
+    - debug:
+        msg: "File exists with mode {{ file_info.stat.mode }}"
+      when: file_info.stat.exists

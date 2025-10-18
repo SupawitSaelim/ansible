@@ -1,0 +1,79 @@
+Modules to Manage Files and Folders
+file Module
+ - Manages file, directory, and symlink ownership, group, and permissions.
+ - Can create or delete files, directories, and symbolic links.
+ - Uses state: to specify type (file, directory, link).
+ - Uses mode: to set permissions like '0644' or '0755'.
+ - recurse: yes applies changes recursively within directories.
+
+archive/unarchive module
+ - archive compresses files/directories on the managed host into formats like zip, tar, gz, etc.
+ - unarchive extracts compressed files to a specified destination.
+ - path: defines files to compress; exclude_path: skips specific files/folders.
+ - src: specifies the archive file, dest: sets the extraction directory.
+ - Use remote_src: true when the archive is already on the remote host.
+
+Assemble Module
+ - Merges multiple file fragments into a single file on the managed host.
+ - src: specifies the directory of fragments, dest: the output file.
+ - Files are joined in alphabetical order.
+ - Use regexp: to include only matching files.
+ - Set remote_src: true if fragments already exist on the remote host.
+
+Copy Module
+ - Copies files from the control node to the remote host.
+ - remote_src: yes copies files between remote directories.
+ - Supports inline file creation using content:.
+ - backup: true creates a timestamped backup if the file already exists.
+ - Does not support copying files from remote to control node.
+
+Fetch Module
+ - Performs the reverse of copy, fetching files from remote to control node.
+ - src: defines the remote file, dest: defines the local directory.
+ - Creates subdirectories per host (e.g., /tmp/<hostname>/<path>).
+ - Prevents overwriting files from different hosts.
+ - Useful for collecting logs or configs from multiple systems.
+
+Stat Module
+ - Retrieves information (facts) about a file or directory.
+ - Use register: to store results and access properties like isdir, islink, mode.
+ - Commonly used in conditionals (e.g., only run if file exists or is a directory).
+
+Lineinfile Module
+ - Adds, removes, or updates a single line in a configuration file.
+ - line: defines the text, path: the target file, state: absent removes it.
+ - insertafter: or insertbefore: controls where the line is placed.
+ - Supports loops with regexp: for updating multiple lines dynamically.
+ - check_mode: true checks if a change would occur without modifying the file.
+
+Blockinfile Module
+ - Inserts or updates multiple lines (a text block) in a file.
+ - block: defines the multiline content using |.
+ - Automatically wraps the text with BEGIN/END markers.
+ - insertafter: / insertbefore: can define block placement.
+ - create: true makes the file if it doesn’t exist.
+
+Common Configuration Parameters for Modules
+ - Most file-related modules share parameters like owner, group, and mode.
+ - attributes: sets filesystem attributes (requires chattr on target).
+ - backup: creates a timestamped backup before modifying a file.
+ - create: makes a new file if it doesn’t exist.
+ - SELinux options: selevel, serole, setype, seuser define context parts.
+ - unsafe_writes: controls atomic operations to prevent data corruption.
+ - validate: runs a validation command before applying changes.
+
+Templates
+ - Templates use the Jinja2 language to create dynamic configuration files.
+ - Placeholders ({{ variables }}) are replaced with values at runtime using Ansible facts or custom vars.
+ - Template files (e.g., conf.properties.j2) are stored in the templates/ directory.
+ - The template module renders the file and copies it to the managed host.
+ - Supports conditionals ({% if %}), variables, and file parameters like owner, mode, and backup.
+ - Sensitive values (e.g., passwords) should be secured using Ansible Vault or secret management tools.
+
+Jinja2 in Ansible
+ - Flow Statements: Use {% for %} loops and conditionals to iterate over lists or control rendering. Supports {% else %} for empty lists.
+ - Macros: Define reusable template fragments with parameters and optional defaults, similar to functions. Use |e to escape special characters.
+ - Include: {% include 'file.j2' %} inserts another template into the current template.
+ - Blocks & Template Inheritance: {% block name %}{% endblock %} defines sections in a base template, which child templates can override using {% extends "base.j2" %}.
+ - Filters: Modify variable values with | (pipe) syntax, e.g., |escape, |capitalize, |pprint, |join('-'). Filters can be chained for complex transformations.
+ - Lookup Plugins: Retrieve external data using functions like lookup('file', 'path/to/file') to read file contents or other sources.

@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Create a test file with content
+      ansible.builtin.copy:
+        content: "Hello Ansible"
+        dest: /tmp/testfile.txt

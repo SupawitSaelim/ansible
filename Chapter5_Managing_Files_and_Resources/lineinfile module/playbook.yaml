@@ -1,0 +1,6 @@
+- hosts: all
+  tasks:
+    - name: Ensure line exists in file
+      ansible.builtin.lineinfile:
+        path: /tmp/testfile.txt
+        line: "Added by Ansible"
