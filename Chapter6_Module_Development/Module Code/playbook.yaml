@@ -1,0 +1,11 @@
+- name: CustomModule
+  hosts: all
+  tasks:
+    - name: Executes custom module
+      hello:
+        name: "Alexandra"
+      register: demo_greeting
+
+    - name: Dump output
+      ansible.builtin.debug:
+        msg: "{{ demo_greeting }}"

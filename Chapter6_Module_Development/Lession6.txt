@@ -1,0 +1,35 @@
+What Is a Module?
+ - Standalone scripts performing a specific action
+ - Abstract complexity for users, simplify automation tasks
+ - Mostly written in Python; PowerShell for Windows modules
+ - Must be idempotent; return JSON-format data
+ - Can be installed via library directory or Content Collections
+
+Ansible Doc
+ - ansible-doc displays module information and documentation
+ - Shows short descriptions, DOCUMENTATION strings, usage examples
+ - Supports both fully qualified and short module names
+ - Helps users quickly understand module parameters and requirements
+
+Listing Modules
+ - ansible-doc -l lists all available modules with short descriptions
+ - Provides a quick overview of installed modules
+
+Getting Module Documentation
+ - ansible-doc <module_name> retrieves detailed info about a specific module
+ - Displays options, requirements, author, examples
+ - Useful for understanding module usage in playbooks
+
+Developing Modules
+ - Modules are reusable, standalone scripts that accept arguments and return JSON output
+ - Can be written in any language; Python is common, using module_utils for standard functions
+ - Module structure includes four main variables: ANSIBLE_METADATA, DOCUMENTATION, EXAMPLES, RETURN
+ - Typical flow: parse parameters → process → prepare result → return via exit_json()
+ - Example: hello.py module prints a welcome message and returns it as a JSON fact
+
+Using the Module
+ - Module name is the filename without the .py extension; arguments set in the playbook
+ - Use register to capture module output, ansible.builtin.debug to display it
+ - Custom modules can be enabled via: ANISBLE_LIBRARY variable, ~/.ansible/plugins/modules/, /usr/share/ansible/plugins/modules/, or a collection
+ - Run playbook with ANSIBLE_LIBRARY=./library ansible-playbook -i inventory playbook.yaml
+ - Output is the JSON returned by the module, showing results and facts
