@@ -1,0 +1,100 @@
+Ansible Roles
+ - Roles provide a standard structure to organize tasks, variables, templates, handlers, and modules for cleaner, maintainable automation.
+ - They allow reusability of playbooks across multiple projects.
+ - Roles are parameterizable, enabling customization through variables when invoked from playbooks.
+ - Common use cases include reusable setups like installing Java (JVM) or PostgreSQL.
+ - Roles can be packaged and shared easily within teams or organizations.
+
+Ansible Galaxy
+ - A community hub for sharing and downloading Ansible roles and collections.
+ - Works similarly to PyPI or Maven Central for dependency sharing.
+ - Managed via the ansible-galaxy command-line tool.
+ - Example: ansible-galaxy install geerlingguy.java installs the Java role from Galaxy.
+ - Provides documentation and version management for published roles.
+ - ansible-galaxy role install geerlingguy.java
+
+Using a Role in a Playbook
+ - Roles are declared under the roles: section of a playbook.
+ - Variables can be passed to customize behavior (e.g., java_packages).
+ - Example usage: (code inside role folder)
+ - The playbook automatically executes all internal role tasks (install, configure, verify).
+ - Simplifies automation by abstracting implementation details and enabling reuse.
+
+Order of Execution
+ - When both roles and tasks exist in a playbook, Ansible executes roles first, in the order listed.
+ - Any role dependencies in meta/main.yml run before the role itself and follow tag and condition filters.
+ - After roles finish, play-level tasks execute sequentially.
+ - This is the default behavior, but roles can also be run within tasks using include_role or import_role.
+ - Using include_role allows placing a role between tasks and customizing execution dynamically.
+
+Developing a Role
+ - Custom roles are useful when existing Galaxy roles don’t meet specific requirements or organizational policies.
+ - Example: create a simple role printfile that displays the content of a remote file.
+ - Generate the role scaffold using:
+ - ansible-galaxy role init printfile
+ - Standard role directory structure includes: tasks, vars, defaults, templates, files, handlers, meta, and tests.
+
+Using the Custom Role
+ - Define the default variable (e.g., show_file: /etc/hosts) in vars/main.yml.
+ - Roles can be declared in a requirements.yml file with multiple source types:
+ - From Ansible Galaxy
+ - From local Git or file paths
+ - From remote Git or HTTP URLs
+
+Handlers in Roles
+ - Handlers are special tasks triggered only when notified by other tasks.
+ - To create one, define it in handlers/main.yml
+ - Modify tasks to notify the handler instead of calling debug directly
+ - This approach promotes reusability and cleaner separation between actions and responses.
+ - Handlers can be triggered by multiple tasks and run once even if notified multiple times.
+
+Sharing a Role
+ - Roles can be shared using various source methods defined in requirements.yml.
+ - Supported options include:
+ - Git repositories (recommended for enterprise version control)
+ - Ansible Galaxy/Automation Hub (centralized sharing and discovery)
+ - HTTP servers (simple file-based hosting)
+ - Git repositories are preferred for security, versioning, and persistence.
+ - Galaxy and Automation Hub are ideal for organization-wide or community-wide distribution.
+
+Final Notes About Roles
+ - A role should handle a single responsibility, like installing Java or configuring Nginx.
+ - For complex setups requiring multiple operations, a single role might become cumbersome.
+ - Example: Installing PostgreSQL might also require creating users, configuring storage, and initializing databases.
+ - In such multi-step automations, roles can still be used but may not be the most efficient structure.
+ - To better handle grouped functionalities, Ansible Collections are introduced.
+
+Ansible Collections
+ - Collections bundle multiple types of Ansible content—roles, modules, plug-ins, and playbooks—into one distributable unit.
+ - They provide a more scalable and modular approach than individual roles.
+ - Installed via ansible-galaxy collection install <name> or defined under the collections: key in requirements.yml.
+ - Example installation:
+ - ansible-galaxy collection install ansible.posix
+ - Collections can reside in user or system paths, configurable via ANSIBLE_COLLECTIONS_PATHS or ansible.cfg.
+ - Roles inside collections are referenced by FQCN + role name, e.g. community.mongodb.mongodb_install.
+
+Creating an Ansible Collection
+ - Creating an Ansible collection is similar to creating a role but designed for packaging multiple automation resources—roles, plug-ins, and modules—under one namespace.
+ - Command to create a collection: ansible-galaxy collection init mynamespace.mycollection
+ - Building and Packaging
+ - To build the collection into a distributable .tar.gz archive:
+ - ansible-galaxy collection build
+ - This command creates a file like:
+ - mynamespace-mycollection-1.0.0.tar.gz
+ - You can also specify another directory as the build location.
+
+Installing the Collection
+ - To install the packaged collection locally:
+ - ansible-galaxy collection install mynamespace-mycollection-1.0.0.tar.gz
+ - The collection will be installed under:
+ - ~/.ansible/collections/ansible_collections/mynamespace/mycollection
+
+Using the Collection
+ - Once installed, you can use its components (modules, roles, etc.) with the Fully Qualified Collection Name (FQCN), for example:
+ - name: Use role from collection
+   hosts: all
+   roles:
+     - mynamespace.mycollection.hello_msg
+ - Conclusion
+ - Ansible collections allow developers to organize, version, and share automation content more efficiently across projects or organizations. They extend beyond roles by supporting multiple resource types (modules, plug-ins, roles) in one unified structure.
+
